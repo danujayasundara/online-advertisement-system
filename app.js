@@ -54,10 +54,6 @@ app.use('/auth', authRoutes);
 app.use('/ads', adRoutes);
 app.use('/seller', profileRoutes);
 
-/*app.get('/home', authenticate, (req, res) => {
-    res.send(`Welcome user ${req.userId}`);
-})*/
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

@@ -1,9 +1,9 @@
 const express = require('express');
-//const { createAd, getAds, getOneAd, updateAd } = require('../controllers/adController');
-const { createAdvertisement, updateAdvertisement, getAllAdvertisements, getAAd, getAllAds, deleteAdvertisement, filterAdvertisements } = require('../controllers/adController');
+const { createAdvertisement, updateAdvertisement, getAllAdvertisements, getAAd, getAllAds, deleteAdvertisement, getCitiesController, getCategoriesController, getAdOfASeller } = require('../controllers/adController');
 const authenticate = require('../middleware/authMiddleware');
 
 const upload = require('../config/multer');
+//const { getAllCities } = require('../services/adService');
 
 const router = express.Router();
 
@@ -11,24 +11,27 @@ const router = express.Router();
 router.post('/ad', authenticate, upload.array('images', 5), createAdvertisement);
 
 //update a Ad
-router.put('/ad/:id', authenticate, upload.array('images', 5), updateAdvertisement);
+router.put('/update', authenticate, upload.array('images', 5), updateAdvertisement);
 
 //get all Ads of seller
-router.get('/', authenticate, getAllAdvertisements);
+router.post('/', authenticate, getAllAdvertisements);
 
 //get a ad for seller
-router.get('/ad/:id', authenticate, getAAd);
+router.post('/one', authenticate, getAdOfASeller);
 
 //get a ad for normal user
-router.get('/user/ad/:id', getAAd);
+router.post('/user/ad', getAAd);
 
-//get all Ads
-router.get('/all', getAllAds);
+//get all Ads for normal user
+router.post('/all', getAllAds);
 
 //delete Ad
-router.delete('/delete/:id', authenticate, deleteAdvertisement);
+router.delete('/delete', authenticate, deleteAdvertisement);
 
-//filter Ads
-router.post('/filter', filterAdvertisements);
+//get cities
+router.get('/cities', getCitiesController);
+
+//get categories
+router.get('/categories', getCategoriesController);
 
 module.exports = router;

@@ -13,11 +13,6 @@ const updateProfileInfo = async(req, res) => {
     }
 
     try {
-        /*let filePath = null;
-        if(req.files && req.files.length > 0){
-            filePath = req.files[0].path;
-        }*/
-
         const updatedProfile = await updateProfileDao(sellerId, {
             name,
             description,
@@ -32,32 +27,28 @@ const updateProfileInfo = async(req, res) => {
     }
 };
 
-//get seller profile
-/*const getProfile = async (sellerId) => {
-    try {
-        const seller = await getSellerProfile(sellerId);
+//get profile
+const getProfile = async (req) => {
+    const { id } = req.params; // id can be adId or sellerId
+    const { isAdId } = req.query; // pass query parameter if it is an adId
 
-        if (!seller){
+    try {
+        const seller = await getSellerProfile(id, isAdId === 'true');
+        if (!seller && isAdId === 'true') {
+            throw new Error('Ad not found');
+        } else if (!seller) {
             throw new Error('Seller not found');
         }
-
-        return seller;
+        return { statusCode: 200, data: seller };
     } catch (error) {
         console.error('Error fetching profile details', error);
-        throw error;
+        if (error.message === 'Seller not found' || error.message === 'Ad not found') {
+            throw { statusCode: 404, message: error.message }; // Throw a 404 status code for 'Ad not found' or 'Seller not found'
+        }
+        throw { statusCode: 500, message: 'An error occurred while getting profile', error };
     }
-}*/
-const getProfile = async (id, isAdId) => {
-    const seller = await getSellerProfile(id, isAdId === 'true');
-
-    if(!seller) {
-        throw new Error(isAdId === 'true' ? 'Ad not found' : 'Seller not found');
-    }
-    
-    return seller;
 };
 
-//get seller data for normal users by ad Id
 
 module.exports = {
     updateProfileInfo,

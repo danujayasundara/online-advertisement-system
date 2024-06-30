@@ -1,42 +1,32 @@
 const fs = require('fs');
 const path = require('path');
+const { processBase64Image, convertImageToBase64 } = require('../utils/imageUtils');
 const { Seller, Image, Advertisement } = require('../models');
 
 // profile
 const updateProfileDao = async (sellerId, data, imageBase64) => {
     const seller = await Seller.findByPk(sellerId);
 
-    if(!seller) {
+    if (!seller) {
         throw new Error('Seller not found');
     }
 
     await seller.update(data);
 
-    if (imageBase64){
+    if (imageBase64) {
         const existingImage = await Image.findOne({
-            where: { sellerId: sellerId, imageType: 'profile'}
+            where: { sellerId: sellerId, imageType: 'profile' }
         });
 
-        const imageBuffer =Buffer.from(imageBase64.split(',')[1], 'base64');
-        //extract file extention for different types
-        const match = imageBase64.match(/^data:image\/(\w+);base64,/);
-        if(!match) {
-            throw new Error('Invalid image format');
-        }
-        const fileExtension = match[1];
-        const imageName = `profile_${Date.now()}.${fileExtension}`;
-        const imagePath = path.join(__dirname, '../uploads', imageName);
-
         let existingImageBase64 = null;
-        if(existingImage) {
-            const existingImageBuffer = fs.readFileSync(existingImage.imageFile);
-            existingImageBase64 = `data:image/${fileExtension};base64,${existingImageBuffer.toString('base64')}`;
+        if (existingImage) {
+            existingImageBase64 = convertImageToBase64(existingImage.imageFile);
         }
 
-        if(existingImageBase64 !== imageBase64) {
-            fs.writeFileSync(imagePath, imageBuffer);
+        if (existingImageBase64 !== imageBase64) {
+            const imagePath = processBase64Image(imageBase64, 'profile', sellerId);
 
-            if(existingImage){
+            if (existingImage) {
                 await existingImage.update({
                     imageFile: imagePath
                 });
@@ -48,32 +38,20 @@ const updateProfileDao = async (sellerId, data, imageBase64) => {
                 });
             }
         }
-     
     }
     return seller;
 };
 
 //get profile
-/*const getSellerProfile = async (sellerId) => {
-    const seller = await Seller.findOne({
-        where: { id: sellerId},
-        attributes: { exclude: ['email','password']},
-        include: [
-            { model: Image, as: 'images', where: { imageType: 'profile'}, required: false} //left join to get seller, if they havn't profile
-        ]
-    });
-    return seller;
-}*/
-
 const getSellerProfile = async (id, isAdId = false) => {
     let seller;
 
     if (isAdId) {
         const ad = await Advertisement.findOne({
-            where: { id },
+            where: { id, isDeleted: false },
             include: [
                 {model: Seller, as: 'seller', attributes: { exclude: ['email', 'password'] }, include: [
-                    {model: Image, as: 'images', where: { imageType: 'profile'}, required: false}
+                    {model: Image, as: 'images', where: { imageType: 'profile'}, attributes: { exclude: ['adId','sellerId'] },required: false}
                 ]}
             ]
         });
@@ -85,7 +63,7 @@ const getSellerProfile = async (id, isAdId = false) => {
             where: { id },
             attributes: { exclude: ['email', 'password'] },
             include: [
-                {model: Image, as: 'images', where: { imageType: 'profile'}, required: false}
+                {model: Image, as: 'images', where: { imageType: 'profile'}, attributes: { exclude: ['adId','sellerId'] }, required: false}
             ]
         });
     }

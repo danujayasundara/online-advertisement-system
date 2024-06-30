@@ -10,15 +10,14 @@ router.put('/profile', authenticate, upload.array('images', 1), updateProfileCon
 
 //get profile details by seller Id
 router.get('/myprofile', authenticate, (req, res) => {
-    req.query.isAdId = 'false';
-    req.params.id = req.userId;
-    getProfileDetails(req, res);
+    const userId = req.userId;
+    getProfileDetails({ params: { id: userId }, query: { isAdId: 'false'}}, res);
 });
 
 //get profile details by ad Id
-router.get('/profile/ad/:id', (req, res) => {
-    req.query.isAdId = 'true';
-    getProfileDetails(req, res);
+router.post('/profile', (req, res) => {
+    const adId = req.body.id;
+    getProfileDetails({ params: { id: adId }, query: { isAdId: 'true'}}, res);
 });
 
 module.exports = router;

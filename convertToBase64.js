@@ -19,7 +19,7 @@ const getMimeType = (filePath) => {
 };
 
 //specify the path
-const imagePath = path.join(__dirname, 'images','images (9).jpg');
+const imagePath = path.join(__dirname, 'images','images (10).jpg');
 
 //read image file into a buffer
 const imageBuffer = fs.readFileSync(imagePath);
