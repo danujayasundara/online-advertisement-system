@@ -121,9 +121,9 @@ const findAllAds = async ({ categoryId, cityId, searchbar, startIndex, maxResult
         };
     }
 
-    if (sortBy === 'Price (Low to High)') {
+    if (sortBy === 'Price_ASC') {
         conditions.order.push(['price', 'ASC']);
-    } else if (sortBy === 'Price (High to Low)') {
+    } else if (sortBy === 'Price_DESC') {
         conditions.order.push(['price', 'DESC']);
     } else {
         // Default sorting by 'lastModified' in descending order

@@ -37,7 +37,7 @@ const createNewAdService = async(req, res) => {
             categoryId,
             sellerId
         }, images, sellerId);
-        res.status(201).json(newAd);
+        res.status(201).json({message: 'Advertisement added successfully'});
     } catch (error) {
         console.error('Error creating advertisement', error);
         res.status(500).json({ message: 'Server error'});
